@@ -15,10 +15,6 @@ trait TagExtractor {
     fn extract_tags(description : &str) -> Vec<Tag>;
 }
 
-pub trait Tokenizer {
-    fn tokenize(self) -> Option<TaskTokens>;
-}
-
 #[derive(Debug)]
 pub struct TaskTokens {
     pub completed : Option<String>,
@@ -28,11 +24,17 @@ pub struct TaskTokens {
     pub description : String,
 }
 
+pub trait Tokenizer {
+    fn tokenize(self) -> Option<TaskTokens>;
+}
+
 impl<'a> Tokenizer for &'a str {
     fn tokenize(self) -> Option<TaskTokens> {
-        let full_regex = Regex::new(r"^(?P<completed>x )?(?P<priority>\([A-Z]\) )?(?P<first_date>\d{4}-\d{2}-\d{2} )?(?P<second_date>\d{4}-\d{2}-\d{2} )?(?P<description>.*)$").unwrap();
+        lazy_static! {
+            static ref TOKENS_REGEX: Regex = Regex::new(r"^(?P<completed>x )?(?P<priority>\([A-Z]\) )?(?P<first_date>\d{4}-\d{2}-\d{2} )?(?P<second_date>\d{4}-\d{2}-\d{2} )?(?P<description>.*)$").unwrap();
+        }
 
-        let captures = match full_regex.captures(self) {
+        let captures = match TOKENS_REGEX.captures(self) {
             Some(captures) => captures,
             None => return None
         };
