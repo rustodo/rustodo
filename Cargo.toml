@@ -1,0 +1,6 @@
+[package]
+name = "rustodo"
+version = "0.1.0"
+authors = ["Thomas Keppler <winfr34k@gmail.com>", "Max Bruckner <max@maxbruckner.de>"]
+
+[dependencies]
