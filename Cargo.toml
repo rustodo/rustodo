@@ -5,3 +5,4 @@ authors = ["Thomas Keppler <winfr34k@gmail.com>", "Max Bruckner <max@maxbruckner
 
 [dependencies]
 chrono = "0.4"
+regex = "0.2"
