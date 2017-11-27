@@ -10,6 +10,8 @@ mod tests {
     use task::Task;
     use chrono::prelude::*;
     use tokens::Tokenizer;
+    use tokens::TagExtractor;
+    use tokens::Tag;
 
     #[test]
     fn it_works() {
@@ -281,5 +283,14 @@ mod tests {
         assert_eq!(tokens.first_date, Some("2011-03-02 ".to_string()));
         assert_eq!(tokens.second_date, Some("2011-03-01 ".to_string()));
         assert_eq!(tokens.description, "Review Tim's pull request +TodoTxtTouch @github");
+    }
+
+    #[test]
+    fn tag_extractor_should_extract_tags_from_description() {
+        let tags = "This @description has a lot of +tags and is due:tomorrow !".extract_tags();
+
+        assert_eq!(tags[0], Tag::Context("description".to_owned()));
+        assert_eq!(tags[1], Tag::Project("tags".to_owned()));
+        assert_eq!(tags[2], Tag::KeyValue("due:tomorrow".to_owned()));
     }
 }
