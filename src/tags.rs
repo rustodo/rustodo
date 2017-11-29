@@ -5,7 +5,7 @@ use regex::Regex;
 pub enum Tag {
     Project(String),
     Context(String),
-    KeyValue(String),
+    KeyValue(String, String),
 }
 
 pub trait TagExtractor {
@@ -15,7 +15,7 @@ pub trait TagExtractor {
 impl<'a> TagExtractor for &'a str {
     fn extract_tags(self) -> Vec<Tag> {
         lazy_static! {
-            static ref TAG_REGEX : Regex = Regex::new(r"(\+(?P<project>[^\s]+)|@(?P<context>[^\s]+)|(?P<keyvalue>[^\s:]+:[^\s:]+))").unwrap();
+            static ref TAG_REGEX : Regex = Regex::new(r"(\+(?P<project>[^\s]+)|@(?P<context>[^\s]+)|(?P<keyvalue>(?P<key>[^\s:]+):(?P<value>[^\s:]+)))").unwrap();
         }
 
         let mut tags = vec![];
@@ -28,8 +28,8 @@ impl<'a> TagExtractor for &'a str {
                 tags.push(Tag::Context(context.as_str().to_owned()));
             }
 
-            if let Some(keyvalue) = captures.name("keyvalue") {
-                tags.push(Tag::KeyValue(keyvalue.as_str().to_owned()));
+            if let (Some(key), Some(value)) = (captures.name("key"), captures.name("value")) {
+                tags.push(Tag::KeyValue(key.as_str().to_owned(), value.as_str().to_owned()));
             }
         }
 
@@ -48,6 +48,6 @@ mod tests {
 
         assert_eq!(tags[0], Tag::Context("description".to_owned()));
         assert_eq!(tags[1], Tag::Project("tags".to_owned()));
-        assert_eq!(tags[2], Tag::KeyValue("due:tomorrow".to_owned()));
+        assert_eq!(tags[2], Tag::KeyValue("due".to_owned(), "tomorrow".to_owned()));
     }
 }
