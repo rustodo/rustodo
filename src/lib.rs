@@ -4,14 +4,15 @@ extern crate regex;
 
 mod task;
 mod tokens;
+mod tags;
 
 #[cfg(test)]
 mod tests {
     use task::Task;
     use chrono::prelude::*;
     use tokens::Tokenizer;
-    use tokens::TagExtractor;
-    use tokens::Tag;
+    use tags::TagExtractor;
+    use tags::Tag;
 
     #[test]
     fn it_works() {
