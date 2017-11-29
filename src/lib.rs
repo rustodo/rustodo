@@ -5,3 +5,5 @@ extern crate regex;
 mod task;
 mod tokens;
 mod tags;
+
+pub use task::Task;
