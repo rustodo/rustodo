@@ -36,3 +36,18 @@ impl<'a> TagExtractor for &'a str {
         tags
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use tags::TagExtractor;
+    use tags::Tag;
+
+    #[test]
+    fn tag_extractor_should_extract_tags_from_description() {
+        let tags = "This @description has a lot of +tags and is due:tomorrow !".extract_tags();
+
+        assert_eq!(tags[0], Tag::Context("description".to_owned()));
+        assert_eq!(tags[1], Tag::Project("tags".to_owned()));
+        assert_eq!(tags[2], Tag::KeyValue("due:tomorrow".to_owned()));
+    }
+}
