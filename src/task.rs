@@ -1,7 +1,10 @@
 use chrono::prelude::*;
 use std::collections::HashMap;
+use tokens::Tokenizer;
+use tags::TagExtractor;
+use tags::Tag;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Task {
     pub completed : bool,
     pub priority : Option<char>,
@@ -105,6 +108,26 @@ impl Task {
     }
 
     pub fn set_description(&mut self, description : &str) {
+        let tags = description[..].extract_tags();
+
+        self.projects.clear();
+        self.contexts.clear();
+        self.options.clear();
+
+        for tag in tags {
+            match tag {
+                Tag::Project(project) => {
+                    self.projects.push(project);
+                },
+                Tag::Context(context) => {
+                    self.contexts.push(context);
+                },
+                Tag::KeyValue(key, value) => {
+                    self.options.insert(key, value);
+                }
+            };
+        }
+
         self.description = String::from(description);
     }
 }
