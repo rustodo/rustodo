@@ -107,6 +107,18 @@ impl Task {
         &self.description
     }
 
+    pub fn projects(&self) -> &Vec<String> {
+        &self.projects
+    }
+
+    pub fn contexts(&self) -> &Vec<String> {
+        &self.contexts
+    }
+
+    pub fn options(&self) -> &HashMap<String,String> {
+        &self.options
+    }
+
     pub fn set_description(&mut self, description : &str) {
         let tags = description[..].extract_tags();
 
@@ -321,5 +333,15 @@ mod tests {
         task.set_description("So many things to do, but I'm too lazy!");
 
         assert_eq!(task.description(), "So many things to do, but I'm too lazy!");
+    }
+
+    #[test]
+    fn setting_the_description_parses_tags() {
+        let mut task = Task::new("");
+        task.set_description("Description +project @context key:value more description.");
+
+        assert_eq!("project", task.projects()[0]);
+        assert_eq!("context", task.contexts()[0]);
+        assert_eq!("value", task.options()["key"]);
     }
 }
