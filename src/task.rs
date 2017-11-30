@@ -105,31 +105,31 @@ impl Task {
     }
 
     pub fn set_description(&mut self, description : &str) {
-        self.description = description.to_owned();
+        self.description = String::from(description);
     }
 }
 
 impl ToString for Task {
     fn to_string(&self) -> String {
         let completed = if self.completed {
-            "x ".to_owned()
+            String::from("x ")
         } else {
-            "".to_owned()
+            String::from("")
         };
 
         let priority = match self.priority {
             Some(p) => format!("({}) ", p),
-            None => "".to_owned()
+            None => String::from("")
         };
 
         let completion = match self.completed_at {
             Some(date) => format!("{} ", date.format("%F")),
-            None => "".to_owned()
+            None => String::from("")
         };
 
         let creation = match self.created_at {
             Some(date) => format!("{} ", date.format("%F")),
-            None => "".to_owned()
+            None => String::from("")
         };
 
         format!("{completed}{priority}{completion}{creation}{description}",

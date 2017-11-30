@@ -26,23 +26,23 @@ impl<'a> Tokenizer for &'a str {
 
         Some(TaskTokens {
             completed: match captures.name("completed") {
-                Some(m) => Some(m.as_str().to_owned()),
+                Some(completed) => Some(String::from(completed.as_str())),
                 None => None
             },
             priority: match captures.name("priority") {
-                Some(m) => Some(m.as_str().to_owned()),
+                Some(priority) => Some(String::from(priority.as_str())),
                 None => None
             },
             first_date: match captures.name("first_date") {
-                Some(m) => Some(m.as_str().to_owned()),
+                Some(first_date) => Some(String::from(first_date.as_str())),
                 None => None
             },
             second_date: match captures.name("second_date") {
-                Some(m) => Some(m.as_str().to_owned()),
+                Some(second_date) => Some(String::from(second_date.as_str())),
                 None => None
             },
             description: match captures.name("description") {
-                Some(m) => m.as_str().to_owned(),
+                Some(description) => String::from(description.as_str()),
                 None => return None
             }
         })
