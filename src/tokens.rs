@@ -64,6 +64,7 @@ mod tests {
         print!("\n {:?} \n", "x (A) Review Tim's pull request +TodoTxtTouch @github".tokenize());
         print!("\n {:?} \n", "x (A) 2011-03-02 Review Tim's pull request +TodoTxtTouch @github".tokenize());
         print!("\n {:?} \n", "x (A) 2011-03-02 2011-03-01 Review Tim's pull request +TodoTxtTouch @github".tokenize());
+        print!("\n {:?} \n", "x (A) 2011-03-02 2011-03-01 Review Tim's pull request +TodoTxtTouch @github key:value".tokenize());
     }
 
     #[test]
@@ -79,35 +80,35 @@ mod tests {
 
     #[test]
     fn tokens_uncompleted_task_description_with_tags() {
-        let tokens = "Review Tim's pull request +TodoTxtTouch @github".tokenize().unwrap();
+        let tokens = "Review Tim's pull request +TodoTxtTouch @github key:value".tokenize().unwrap();
 
         assert_eq!(tokens.completed, None);
         assert_eq!(tokens.priority, None);
         assert_eq!(tokens.first_date, None);
         assert_eq!(tokens.second_date, None);
-        assert_eq!(tokens.description, "Review Tim's pull request +TodoTxtTouch @github");
+        assert_eq!(tokens.description, "Review Tim's pull request +TodoTxtTouch @github key:value");
     }
 
     #[test]
     fn tokens_uncompleted_task_priority_and_description() {
-        let tokens = "(A) Review Tim's pull request +TodoTxtTouch @github".tokenize().unwrap();
+        let tokens = "(A) Review Tim's pull request +TodoTxtTouch @github key:value".tokenize().unwrap();
 
         assert_eq!(tokens.completed, None);
         assert_eq!(tokens.priority, Some("(A) ".to_string()));
         assert_eq!(tokens.first_date, None);
         assert_eq!(tokens.second_date, None);
-        assert_eq!(tokens.description, "Review Tim's pull request +TodoTxtTouch @github");
+        assert_eq!(tokens.description, "Review Tim's pull request +TodoTxtTouch @github key:value");
     }
 
     #[test]
     fn tokens_uncompleted_task_full() {
-        let tokens = "(A) 2011-03-01 Review Tim's pull request +TodoTxtTouch @github".tokenize().unwrap();
+        let tokens = "(A) 2011-03-01 Review Tim's pull request +TodoTxtTouch @github key:value".tokenize().unwrap();
 
         assert_eq!(tokens.completed, None);
         assert_eq!(tokens.priority, Some("(A) ".to_string()));
         assert_eq!(tokens.first_date, Some("2011-03-01 ".to_string()));
         assert_eq!(tokens.second_date, None);
-        assert_eq!(tokens.description, "Review Tim's pull request +TodoTxtTouch @github");
+        assert_eq!(tokens.description, "Review Tim's pull request +TodoTxtTouch @github key:value");
     }
 
     #[test]
@@ -123,46 +124,46 @@ mod tests {
 
     #[test]
     fn tokens_completed_task_description_with_tags() {
-        let tokens = "x Review Tim's pull request +TodoTxtTouch @github".tokenize().unwrap();
+        let tokens = "x Review Tim's pull request +TodoTxtTouch @github key:value".tokenize().unwrap();
 
         assert_eq!(tokens.completed, Some("x ".to_string()));
         assert_eq!(tokens.priority, None);
         assert_eq!(tokens.first_date, None);
         assert_eq!(tokens.second_date, None);
-        assert_eq!(tokens.description, "Review Tim's pull request +TodoTxtTouch @github");
+        assert_eq!(tokens.description, "Review Tim's pull request +TodoTxtTouch @github key:value");
     }
 
     #[test]
     fn tokens_completed_task_priority_and_description() {
-        let tokens = "x (A) Review Tim's pull request +TodoTxtTouch @github".tokenize().unwrap();
+        let tokens = "x (A) Review Tim's pull request +TodoTxtTouch @github key:value".tokenize().unwrap();
 
         assert_eq!(tokens.completed, Some("x ".to_string()));
         assert_eq!(tokens.priority, Some("(A) ".to_string()));
         assert_eq!(tokens.first_date, None);
         assert_eq!(tokens.second_date, None);
-        assert_eq!(tokens.description, "Review Tim's pull request +TodoTxtTouch @github");
+        assert_eq!(tokens.description, "Review Tim's pull request +TodoTxtTouch @github key:value");
     }
 
     #[test]
-    fn tokens_completed_task_priority_and_descriptionl() {
-        let tokens = "x (A) 2011-03-02 Review Tim's pull request +TodoTxtTouch @github".tokenize().unwrap();
+    fn tokens_completed_task_priority_description_and_creation_date() {
+        let tokens = "x (A) 2011-03-02 Review Tim's pull request +TodoTxtTouch @github key:value".tokenize().unwrap();
 
         assert_eq!(tokens.completed, Some("x ".to_string()));
         assert_eq!(tokens.priority, Some("(A) ".to_string()));
         assert_eq!(tokens.first_date, Some("2011-03-02 ".to_string()));
         assert_eq!(tokens.second_date, None);
-        assert_eq!(tokens.description, "Review Tim's pull request +TodoTxtTouch @github");
+        assert_eq!(tokens.description, "Review Tim's pull request +TodoTxtTouch @github key:value");
     }
 
     #[test]
     fn tokens_completed_task_full() {
-        let tokens = "x (A) 2011-03-02 2011-03-01 Review Tim's pull request +TodoTxtTouch @github".tokenize().unwrap();
+        let tokens = "x (A) 2011-03-02 2011-03-01 Review Tim's pull request +TodoTxtTouch @github key:value".tokenize().unwrap();
 
         assert_eq!(tokens.completed, Some("x ".to_string()));
         assert_eq!(tokens.priority, Some("(A) ".to_string()));
         assert_eq!(tokens.first_date, Some("2011-03-02 ".to_string()));
         assert_eq!(tokens.second_date, Some("2011-03-01 ".to_string()));
-        assert_eq!(tokens.description, "Review Tim's pull request +TodoTxtTouch @github");
+        assert_eq!(tokens.description, "Review Tim's pull request +TodoTxtTouch @github key:value");
     }
 }
 
