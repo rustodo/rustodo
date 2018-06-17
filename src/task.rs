@@ -1,8 +1,8 @@
 use chrono::prelude::*;
 use std::collections::HashMap;
 use tokens::Tokenizer;
-use tags::TagExtractor;
-use tags::Tag;
+use description_component::ComponentExtractor;
+use description_component::DescriptionComponent;
 
 #[derive(Debug, Clone)]
 pub struct Task {
@@ -120,21 +120,25 @@ impl Task {
     }
 
     pub fn set_description(&mut self, description : &str) {
-        let tags = description[..].extract_tags();
+        let components = description[..].extract_components();
 
         self.projects.clear();
         self.contexts.clear();
         self.options.clear();
 
-        for tag in tags {
-            match tag {
-                Tag::Project(project) => {
+        for component in components {
+            match component {
+                // TODO:
+                DescriptionComponent::Text(_) => {
+
+                },
+                DescriptionComponent::Project(project) => {
                     self.projects.push(project);
                 },
-                Tag::Context(context) => {
+                DescriptionComponent::Context(context) => {
                     self.contexts.push(context);
                 },
-                Tag::KeyValue(key, value) => {
+                DescriptionComponent::KeyValue(key, value) => {
                     self.options.insert(key, value);
                 }
             };

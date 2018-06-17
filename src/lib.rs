@@ -4,6 +4,6 @@ extern crate regex;
 
 mod task;
 mod tokens;
-mod tags;
+mod description_component;
 
 pub use task::Task;
