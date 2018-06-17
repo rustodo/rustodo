@@ -146,6 +146,10 @@ impl Task {
 
         self.description = String::from(description);
     }
+
+    pub fn description_components(&self) -> Vec<DescriptionComponent> {
+        self.description.as_str().extract_components()
+    }
 }
 
 impl ToString for Task {
@@ -183,6 +187,7 @@ impl ToString for Task {
 #[cfg(test)]
 mod tests {
     use task::Task;
+    use description_component::DescriptionComponent;
     use chrono::prelude::*;
 
     #[test]
@@ -347,5 +352,19 @@ mod tests {
         assert_eq!("project", task.projects()[0]);
         assert_eq!("context", task.contexts()[0]);
         assert_eq!("value", task.options()["key"]);
+    }
+
+    #[test]
+    fn get_components_and_their_position_in_the_description() {
+        let task = Task::new("Description +project @context key:value more description.");
+        let components = task.description_components();
+
+        assert_eq!(components[0], DescriptionComponent::Text(String::from("Description ")));
+        assert_eq!(components[1], DescriptionComponent::Project(String::from("project")));
+        assert_eq!(components[2], DescriptionComponent::Text(String::from(" ")));
+        assert_eq!(components[3], DescriptionComponent::Context(String::from("context")));
+        assert_eq!(components[4], DescriptionComponent::Text(String::from(" ")));
+        assert_eq!(components[5], DescriptionComponent::KeyValue(String::from("key"), String::from("value")));
+        assert_eq!(components[6], DescriptionComponent::Text(String::from(" more description.")));
     }
 }
