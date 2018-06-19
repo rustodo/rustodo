@@ -23,7 +23,7 @@ impl<'a> ComponentExtractor for &'a str {
 
         let mut components = vec![];
         while !remaining_description.is_empty() {
-            let capture = match TAG_REGEX.captures(remaining_description.clone().as_str()) {
+            match TAG_REGEX.captures(remaining_description.clone().as_str()) {
                 Some(captures) => {
                     let start;
                     let end;
