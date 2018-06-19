@@ -54,6 +54,7 @@ mod tests {
     use tokens::Tokenizer;
 
     #[test]
+    #[ignore]
     fn learning_test_tokens_work() {
         print!("\n {:?} \n", "Review Tim's pull request".tokenize());
         print!("\n {:?} \n", "Review Tim's pull request +TodoTxtTouch @github".tokenize());
