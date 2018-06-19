@@ -1,7 +1,11 @@
 use regex::Regex;
+use std::fmt::Display;
+use std::fmt::Formatter;
+use std::fmt::Error;
 
 #[derive(PartialEq)]
 #[derive(Debug)]
+#[derive(Clone)]
 pub enum DescriptionComponent {
     Text(String),
     Project(String),
@@ -69,10 +73,28 @@ impl<'a> ComponentExtractor for &'a str {
     }
 }
 
+impl Display for DescriptionComponent {
+    fn fmt(&self, formatter: &mut Formatter) -> Result<(), Error> {
+        match self {
+            &DescriptionComponent::Text(ref text) => write!(formatter, "{}", text),
+            &DescriptionComponent::Project(ref project) => write!(formatter, "+{}", project),
+            &DescriptionComponent::Context(ref context) => write!(formatter, "@{}", context),
+            &DescriptionComponent::KeyValue(ref key, ref value) => write!(formatter, "{}:{}", key, value)
+        }
+    }
+}
+
+pub fn description_components_to_string(components: &Vec<DescriptionComponent>) -> String {
+    components.iter()
+        .map(|ref component| component.to_string())
+        .collect()
+}
+
 #[cfg(test)]
 mod tests {
     use description_component::ComponentExtractor;
     use description_component::DescriptionComponent;
+    use description_component::description_components_to_string;
 
     #[test]
     fn components_extractor_should_extract_components_from_description() {
@@ -86,5 +108,13 @@ mod tests {
         assert_eq!(components[4], DescriptionComponent::Text(String::from(" and is ")));
         assert_eq!(components[5], DescriptionComponent::KeyValue(String::from("due"), String::from("tomorrow")));
         assert_eq!(components[6], DescriptionComponent::Text(String::from(" !")));
+    }
+
+    #[test]
+    fn components_can_be_converted_to_string() {
+        let description = "This @description has a lot of +tags and is due:tomorrow !";
+        let components = description.extract_components();
+
+        assert_eq!(description_components_to_string(&components), description);
     }
 }

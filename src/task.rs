@@ -2,6 +2,7 @@ use chrono::prelude::*;
 use std::collections::HashMap;
 use description_component::ComponentExtractor;
 use description_component::DescriptionComponent;
+use description_component::description_components_to_string;
 
 #[derive(Debug, Clone)]
 pub struct Task {
@@ -9,10 +10,7 @@ pub struct Task {
     pub priority : Option<char>,
     completed_at : Option<DateTime<Utc>>,
     created_at : Option<DateTime<Utc>>,
-    description : String,
-    projects : Vec<String>,
-    contexts : Vec<String>,
-    options : HashMap<String,String>,
+    description: Vec<DescriptionComponent>,
 }
 
 fn parse_datetime_str(datetime_str : &str) -> Option<DateTime<Utc>> {
@@ -31,10 +29,7 @@ impl Task {
             priority: None,
             completed_at: None,
             created_at: None,
-            description: String::from(description),
-            projects: vec![],
-            contexts: vec![],
-            options: HashMap::new(),
+            description: description.extract_components(),
         }
     }
 
@@ -102,52 +97,37 @@ impl Task {
         }
     }
 
-    pub fn description(&self) -> &str {
-        &self.description
+    pub fn description(&self) -> String {
+        self.description.iter().map(|ref component| component.to_string()).collect()
     }
 
-    pub fn projects(&self) -> &Vec<String> {
-        &self.projects
+    pub fn projects(&self) -> Vec<String> {
+        self.description.iter().filter_map(|ref component| match component {
+            &&DescriptionComponent::Project(ref project) => Some(project.clone()),
+            _ => None
+        }).collect::<Vec<String>>()
     }
 
-    pub fn contexts(&self) -> &Vec<String> {
-        &self.contexts
+    pub fn contexts(&self) -> Vec<String> {
+        self.description.iter().filter_map(|ref component| match component {
+            &&DescriptionComponent::Context(ref context) => Some(context.clone()),
+            _ => None
+        }).collect::<Vec<String>>()
     }
 
-    pub fn options(&self) -> &HashMap<String,String> {
-        &self.options
+    pub fn options(&self) -> HashMap<String,String> {
+        self.description.iter().filter_map(|ref component| match component {
+            &&DescriptionComponent::KeyValue(ref key, ref value) => Some((key.clone(), value.clone())),
+            _ => None
+        }).collect::<HashMap<String,String>>()
     }
 
     pub fn set_description(&mut self, description : &str) {
-        let components = description[..].extract_components();
-
-        self.projects.clear();
-        self.contexts.clear();
-        self.options.clear();
-
-        for component in components {
-            match component {
-                // TODO:
-                DescriptionComponent::Text(_) => {
-
-                },
-                DescriptionComponent::Project(project) => {
-                    self.projects.push(project);
-                },
-                DescriptionComponent::Context(context) => {
-                    self.contexts.push(context);
-                },
-                DescriptionComponent::KeyValue(key, value) => {
-                    self.options.insert(key, value);
-                }
-            };
-        }
-
-        self.description = String::from(description);
+        self.description = description.extract_components()
     }
 
-    pub fn description_components(&self) -> Vec<DescriptionComponent> {
-        self.description.as_str().extract_components()
+    pub fn description_components(&self) -> &Vec<DescriptionComponent> {
+        &self.description
     }
 }
 
@@ -179,7 +159,7 @@ impl ToString for Task {
                 priority = priority,
                 completion = completion,
                 creation = creation,
-                description = self.description)
+                description = description_components_to_string(&self.description))
     }
 }
 
@@ -199,10 +179,7 @@ mod tests {
         let datestring = "2017-11-25 00:00:00";
         let date = match Utc.datetime_from_str(&datestring, "%Y-%m-%d %H:%M:%S") {
             Ok(converted_date) => Some(converted_date.date()),
-            Err(error) => {
-                println!("THE DAMN ERROR WAS: {}", error);
-                None
-            }
+            Err(_) => None,
         };
 
         assert_ne!(date, None);
