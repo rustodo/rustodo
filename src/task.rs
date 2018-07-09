@@ -102,22 +102,22 @@ impl Task {
     }
 
     pub fn projects(&self) -> Vec<String> {
-        self.description.iter().filter_map(|ref component| match component {
-            &&DescriptionComponent::Project(ref project) => Some(project.clone()),
+        self.description.iter().filter_map(|component| match component {
+            DescriptionComponent::Project(project) => Some(project.clone()),
             _ => None
         }).collect::<Vec<String>>()
     }
 
     pub fn contexts(&self) -> Vec<String> {
-        self.description.iter().filter_map(|ref component| match component {
-            &&DescriptionComponent::Context(ref context) => Some(context.clone()),
+        self.description.iter().filter_map(|component| match component {
+            DescriptionComponent::Context(context) => Some(context.clone()),
             _ => None
         }).collect::<Vec<String>>()
     }
 
     pub fn options(&self) -> HashMap<String,String> {
-        self.description.iter().filter_map(|ref component| match component {
-            &&DescriptionComponent::KeyValue(ref key, ref value) => Some((key.clone(), value.clone())),
+        self.description.iter().filter_map(|component| match component {
+            DescriptionComponent::KeyValue(key, value) => Some((key.clone(), value.clone())),
             _ => None
         }).collect::<HashMap<String,String>>()
     }
