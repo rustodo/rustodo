@@ -23,11 +23,12 @@ impl<'a> ComponentExtractor for &'a str {
             static ref TAG_REGEX : Regex = Regex::new(r"(\+(?P<project>[^\s]+)|@(?P<context>[^\s]+)|(?P<keyvalue>(?P<key>[^\s:]+):(?P<value>[^\s:]+)))").expect("Regex is invalid");
         }
 
-        let mut remaining_description = String::from(self);
+        //let mut remaining_description = String::from(self);
 
+        let mut remaining_description = self;
         let mut components = vec![];
         while !remaining_description.is_empty() {
-            match TAG_REGEX.captures(remaining_description.clone().as_str()) {
+            match TAG_REGEX.captures(remaining_description) {
                 Some(captures) => {
                     let start;
                     let end;
@@ -50,7 +51,7 @@ impl<'a> ComponentExtractor for &'a str {
                         start = remaining_description.len();
                         end = start;
 
-                        DescriptionComponent::Text(remaining_description.clone())
+                        DescriptionComponent::Text(String::from(remaining_description))
                     };
 
                     if (start > 0) && (start != remaining_description.len()) {
@@ -60,11 +61,11 @@ impl<'a> ComponentExtractor for &'a str {
 
                     components.push(component);
 
-                    remaining_description = String::from(&remaining_description[end..]);
+                    remaining_description = &remaining_description[end..];
                 },
                 None => {
-                    components.push(DescriptionComponent::Text(remaining_description.clone()));
-                    remaining_description.clear();
+                    components.push(DescriptionComponent::Text(String::from(remaining_description)));
+                    remaining_description = &remaining_description[0..0];
                 }
             };
         }
