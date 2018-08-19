@@ -16,7 +16,7 @@ pub trait Tokenizer {
 impl<'a> Tokenizer for &'a str {
     fn tokenize(self) -> Option<TaskTokens> {
         lazy_static! {
-            static ref TOKENS_REGEX: Regex = Regex::new(r"^(?P<completed>x )?(?P<priority>\([A-Z]\) )?(?P<first_date>\d{4}-\d{2}-\d{2} )?(?P<second_date>\d{4}-\d{2}-\d{2} )?(?P<description>.*)$").unwrap();
+            static ref TOKENS_REGEX: Regex = Regex::new(r"^(?P<completed>x )?(?P<priority>\([A-Z]\) )?(?P<first_date>\d{4}-\d{2}-\d{2} )?(?P<second_date>\d{4}-\d{2}-\d{2} )?(?P<description>.*)$").expect("Failed to compile token regex.");
         }
 
         let captures = match TOKENS_REGEX.captures(self) {
