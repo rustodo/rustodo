@@ -1,5 +1,8 @@
 use chrono::prelude::*;
 use std::collections::HashMap;
+use std::fmt::Display;
+use std::fmt::Formatter;
+use std::fmt::Error;
 use description_component::ComponentExtractor;
 use description_component::DescriptionComponent;
 use description_component::description_components_to_string;
@@ -131,37 +134,28 @@ impl Task {
     }
 }
 
-impl ToString for Task {
-    fn to_string(&self) -> String {
-        let completed = if self.completed {
-            String::from("x ")
-        } else {
-            String::from("")
+impl Display for Task {
+    fn fmt(&self, formatter: &mut Formatter) -> Result<(), Error> {
+        if self.completed {
+            write!(formatter, "x ")?
+        }
+
+        if let Some(priority) = self.priority {
+            write!(formatter, "({}) ", priority)?
+        }
+
+        if let Some(completed_at) = self.completed_at {
+            write!(formatter, "{} ", completed_at.format("%F"))?
+        }
+
+        if let Some(created_at) = self.created_at {
+            write!(formatter, "{} ", created_at.format("%F"))?
         };
 
-        let priority = match self.priority {
-            Some(p) => format!("({}) ", p),
-            None => String::from("")
-        };
-
-        let completion = match self.completed_at {
-            Some(date) => format!("{} ", date.format("%F")),
-            None => String::from("")
-        };
-
-        let creation = match self.created_at {
-            Some(date) => format!("{} ", date.format("%F")),
-            None => String::from("")
-        };
-
-        format!("{completed}{priority}{completion}{creation}{description}",
-                completed = completed,
-                priority = priority,
-                completion = completion,
-                creation = creation,
-                description = description_components_to_string(&self.description))
+        write!(formatter, "{}", description_components_to_string(&self.description))
     }
 }
+
 
 #[cfg(test)]
 mod tests {
