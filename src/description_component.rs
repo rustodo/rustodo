@@ -23,8 +23,6 @@ impl<'a> ComponentExtractor for &'a str {
             static ref TAG_REGEX : Regex = Regex::new(r"(\+(?P<project>[^\s]+)|@(?P<context>[^\s]+)|(?P<keyvalue>(?P<key>[^\s:]+):(?P<value>[^\s:]+)))").expect("Regex is invalid");
         }
 
-        //let mut remaining_description = String::from(self);
-
         let mut remaining_description = self;
         let mut components = vec![];
         while !remaining_description.is_empty() {
