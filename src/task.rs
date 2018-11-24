@@ -6,23 +6,15 @@ use std::fmt::Error;
 use description_component::ComponentExtractor;
 use description_component::DescriptionComponent;
 use description_component::description_components_to_string;
+use parsers::*;
 
 #[derive(Debug, Clone)]
 pub struct Task {
     pub completed : bool,
     pub priority : Option<char>,
-    completed_at : Option<DateTime<Utc>>,
-    created_at : Option<DateTime<Utc>>,
+    completed_at : Option<Date<Utc>>,
+    created_at : Option<Date<Utc>>,
     description: Vec<DescriptionComponent>,
-}
-
-fn parse_datetime_str(datetime_str : &str) -> Option<DateTime<Utc>> {
-    let datetime_str = format!("{} 00:00:00", datetime_str);
-
-    match Utc.datetime_from_str(&datetime_str, "%Y-%m-%d %H:%M:%S") {
-        Ok(datetime) => Some(datetime),
-        Err(_) => None
-    }
 }
 
 impl Task {
@@ -36,11 +28,11 @@ impl Task {
         }
     }
 
-    pub fn completed_at(&self) -> Option<DateTime<Utc>> {
+    pub fn completed_at(&self) -> Option<Date<Utc>> {
         self.completed_at
     }
 
-    pub fn set_completed_at(&mut self, date_option : Option<DateTime<Utc>>) -> bool {
+    pub fn set_completed_at(&mut self, date_option : Option<Date<Utc>>) -> bool {
         match date_option {
             Some(_) => match self.created_at {
                 //completed_at can only be set if there is a created_at
@@ -58,20 +50,20 @@ impl Task {
     }
 
     pub fn set_completed_at_from_str(&mut self, datestring : &str) -> bool {
-        match parse_datetime_str(datestring) {
-            Some(datetime) => {
-                self.set_completed_at(Some(datetime));
+        match DateParser::parse(datestring) {
+            Some(parse_result) => {
+                self.set_completed_at(Some(parse_result.value));
                 true
             },
             None => false
         }
     }
 
-    pub fn created_at(&self) -> Option<DateTime<Utc>> {
+    pub fn created_at(&self) -> Option<Date<Utc>> {
         self.created_at
     }
 
-    pub fn set_created_at(&mut self, date_option : Option<DateTime<Utc>>) -> bool {
+    pub fn set_created_at(&mut self, date_option : Option<Date<Utc>>) -> bool {
         match date_option {
             Some(_) => {
                 self.created_at = date_option;
@@ -91,9 +83,9 @@ impl Task {
     }
 
     pub fn set_created_at_from_str(&mut self, datestring : &str) -> bool {
-        match parse_datetime_str(datestring) {
-            Some(datetime) => {
-                self.set_created_at(Some(datetime));
+        match DateParser::parse(datestring) {
+            Some(parse_result) => {
+                self.set_created_at(Some(parse_result.value));
                 true
             },
             None => false
@@ -182,7 +174,7 @@ mod tests {
     #[test]
     fn created_at_can_be_set_to_date_time() {
         let mut task = Task::new("Test");
-        task.set_created_at(Some(Utc::now()));
+        task.set_created_at(Some(Utc::now().date()));
 
         assert_ne!(task.created_at(), None);
     }
@@ -190,17 +182,17 @@ mod tests {
     #[test]
     fn completed_at_cannot_be_set_without_created_at() {
         let mut task = Task::new("Test");
-        assert_eq!(task.set_completed_at(Some(Utc::now())), false);
+        assert_eq!(task.set_completed_at(Some(Utc::now().date())), false);
 
-        assert!(task.set_created_at(Some(Utc::now())));
-        assert!(task.set_completed_at(Some(Utc::now())), false);
+        assert!(task.set_created_at(Some(Utc::now().date())));
+        assert!(task.set_completed_at(Some(Utc::now().date())), false);
     }
 
     #[test]
     fn completed_at_can_be_set_to_datetime() {
         let mut task = Task::new("Test");
-        assert!(task.set_created_at(Some(Utc::now())));
-        assert!(task.set_completed_at(Some(Utc::now())), false);
+        assert!(task.set_created_at(Some(Utc::now().date())));
+        assert!(task.set_completed_at(Some(Utc::now().date())), false);
     }
 
     #[test]
