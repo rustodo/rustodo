@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use std::fmt::Display;
 use std::fmt::Formatter;
 use std::fmt::Error;
-use description_component::ComponentExtractor;
+use description_component::DescriptionComponentsParser;
 use description_component::DescriptionComponent;
 use description_component::description_components_to_string;
 use parsers::*;
@@ -24,7 +24,9 @@ impl Task {
             priority: None,
             completed_at: None,
             created_at: None,
-            description: description.extract_components(),
+            description: DescriptionComponentsParser::parse(description)
+                .expect("Descriptions must be parseable. If not you have found a bug!")
+                .value,
         }
     }
 
@@ -118,7 +120,9 @@ impl Task {
     }
 
     pub fn set_description(&mut self, description : &str) {
-        self.description = description.extract_components()
+        self.description = DescriptionComponentsParser::parse(description)
+            .expect("Descriptions must be parseable. If not you have found a bug!")
+            .value
     }
 
     pub fn description_components(&self) -> &Vec<DescriptionComponent> {

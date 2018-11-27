@@ -136,17 +136,6 @@ impl Parser for DescriptionComponentsParser {
     }
 }
 
-pub trait ComponentExtractor {
-    fn extract_components(self) -> Vec<DescriptionComponent>;
-}
-
-impl<'a> ComponentExtractor for &'a str {
-    fn extract_components(self) -> DescriptionComponents {
-        DescriptionComponentsParser::parse(self)
-            .map_or(DescriptionComponents::new(), |result| result.value)
-    }
-}
-
 impl Display for DescriptionComponent {
     fn fmt(&self, formatter: &mut Formatter) -> Result<(), Error> {
         match self {
@@ -282,9 +271,12 @@ mod tests {
 
     #[test]
     fn components_extractor_should_extract_components_from_description() {
-        let components = "This @description has a lot of +tags and is due:tomorrow !".extract_components();
+        let parse_result = DescriptionComponentsParser::parse("This @description has a lot of +tags and is due:tomorrow !").expect("Must parse!");
+        assert_eq!(parse_result.remaining, "");
 
-        // TODO: Parse contexts and projects correctly (preceding space)
+        let components = parse_result.value;
+
+        assert_eq!(components.len(), 7);
         assert_eq!(components[0], DescriptionComponent::Text(String::from("This ")));
         assert_eq!(components[1], DescriptionComponent::Context(String::from("description")));
         assert_eq!(components[2], DescriptionComponent::Text(String::from(" has a lot of ")));
@@ -297,7 +289,8 @@ mod tests {
     #[test]
     fn components_can_be_converted_to_string() {
         let description = "This @description has a lot of +tags and is due:tomorrow !";
-        let components = description.extract_components();
+        let parse_result = DescriptionComponentsParser::parse(description).expect("Must parse!");
+        let components = parse_result.value;
 
         assert_eq!(description_components_to_string(&components), description);
     }
