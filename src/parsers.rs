@@ -41,6 +41,26 @@ impl Parser for DateParser {
     }
 }
 
+struct CompletionMarkParser {}
+
+impl Parser for CompletionMarkParser {
+    type Value = bool;
+
+    fn parse(input: &str) -> Option<ParserResult<Self::Value>> {
+        if input.starts_with("x ") {
+            Some(ParserResult {
+                value: true,
+                remaining: &input[2..],
+            })
+        } else {
+            Some(ParserResult {
+                value: false,
+                remaining: input,
+            })
+        }
+    }
+}
+
 
 #[cfg(test)]
 mod tests {
@@ -66,5 +86,45 @@ mod tests {
     fn dateparser_should_handle_limits() {
         let date_result = DateParser::parse("9999-99-99");
         assert!(date_result.is_none());
+    }
+
+    #[test]
+    fn completion_mark_parser_should_parse_completion_marks() {
+        let parse_result = CompletionMarkParser::parse("x ").expect("Must parse");
+
+        assert_eq!(parse_result.value, true);
+        assert_eq!(parse_result.remaining, "");
+    }
+
+    #[test]
+    fn completion_mark_parser_should_parse_completion_marks_before_text() {
+        let parse_result = CompletionMarkParser::parse("x Some text").expect("Must parse");
+
+        assert_eq!(parse_result.value, true);
+        assert_eq!(parse_result.remaining, "Some text");
+    }
+
+    #[test]
+    fn completion_mark_parse_should_parse_uncompleted() {
+        let parse_result = CompletionMarkParser::parse("Some Text").expect("Must parse");
+
+        assert_eq!(parse_result.value, false);
+        assert_eq!(parse_result.remaining, "Some Text");
+    }
+
+    #[test]
+    fn completion_mark_parse_should_parse_with_space() {
+        let parse_result = CompletionMarkParser::parse(" Some Text").expect("Must parse");
+
+        assert_eq!(parse_result.value, false);
+        assert_eq!(parse_result.remaining, " Some Text");
+    }
+
+    #[test]
+    fn completion_mark_parse_should_parse_empty_string() {
+        let parse_result = CompletionMarkParser::parse("").expect("Must parse");
+
+        assert_eq!(parse_result.value, false);
+        assert_eq!(parse_result.remaining, "");
     }
 }
