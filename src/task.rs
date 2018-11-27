@@ -18,13 +18,14 @@ pub struct Task {
 }
 
 impl Task {
-    pub fn new(description : &str) -> Task {
+    pub fn new(input : &str) -> Task {
+        let completed_result = CompletionMarkParser::parse(input).expect("If this doesn't parse, you have found a bug!");
         Task {
-            completed: false,
+            completed: completed_result.value,
             priority: None,
             completed_at: None,
             created_at: None,
-            description: DescriptionComponentsParser::parse(description)
+            description: DescriptionComponentsParser::parse(completed_result.remaining)
                 .expect("Descriptions must be parseable. If not you have found a bug!")
                 .value,
         }
@@ -332,5 +333,20 @@ mod tests {
         assert_eq!(components[4], DescriptionComponent::Text(String::from(" ")));
         assert_eq!(components[5], DescriptionComponent::KeyValue(String::from("key"), String::from("value")));
         assert_eq!(components[6], DescriptionComponent::Text(String::from(" more description.")));
+    }
+
+    #[test]
+    fn new_task_should_parse_completion_marker() {
+        let completed = Task::new("x Some completed Task.");
+        assert_eq!(completed.completed, true);
+        assert_eq!(completed.description(), "Some completed Task.");
+
+        let without_space = Task::new("xSome incomplete Task.");
+        assert_eq!(without_space.completed, false);
+        assert_eq!(without_space.description(), "xSome incomplete Task.");
+
+        let uppercase = Task::new("X Some incomplete Task.");
+        assert_eq!(uppercase.completed, false);
+        assert_eq!(uppercase.description(), "X Some incomplete Task.");
     }
 }

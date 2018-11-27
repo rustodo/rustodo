@@ -41,7 +41,7 @@ impl Parser for DateParser {
     }
 }
 
-struct CompletionMarkParser {}
+pub struct CompletionMarkParser {}
 
 impl Parser for CompletionMarkParser {
     type Value = bool;
